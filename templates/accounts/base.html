@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<head>
+{% block head %}
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}base.css"/>
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}jquery-ui.css"/>
+{% endblock %}
+</head>
+
+<body>
+    <div id="navigation">
+	<h1>ACCOUNTANT</h1>
+	<a class="navlink" href="/accounts">Accounts</a>
+	<a class="navlink" href="/incomes">Incomes</a>
+	<a class="navlink" href="/expenses">Expenses</a>
+	<a class="navlink" href="/budget">Budget</a>
+
+	<div id="userinfo">
+	    <div id="welcome">Welcome, {{ user.first_name }}!</div>
+	    <div id="total">
+		Balance: {{ total|stringformat:".2f" }}
+	    </div>
+	    <a id="logout" href="/logout/">Logout</a>
+	</div>
+    </div>
+
+    <div id="interface">
+	<div id="date-interface">
+	    <div id="start-datepicker">
+		<span class="datepicker-header">Start Date:</span>
+	    </div>
+	    <div id="end-datepicker">
+		<span class="datepicker-header">End Date:</span>
+	    </div>
+	</div>
+	{% block interface %}{% endblock %}
+    </div>
+</body>
+
+{% block footer %}
+<footer>
+    <script type="text/javascript" src="{{ STATIC_URL }}jquery.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}jquery-ui.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}daterange.js"></script>
+    <script type="text/javascript">
+	DateRange("{{ start_date }}", "{{ end_date }}");
+    </script>
+</footer>
+{% endblock %}
+
+</html>

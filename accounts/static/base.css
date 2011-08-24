@@ -1,0 +1,154 @@
+@font-face {
+    font-family: "League Gothic";
+    src: url("fonts/LeagueGothic.otf");
+}
+
+@font-face {
+    font-family: "Chunk";
+    src: url("fonts/Chunk.otf");
+}
+
+body {
+    margin-left: auto;
+    margin-right: auto;
+    width: 75%;
+    background-color: #00297A;
+    font-family: georgia, arial;
+    font-size: 1.5em;
+}
+
+h1 {
+    font-family: "Chunk";
+}
+
+a {
+    font-size: 1.2em;
+    color: #1F1F7A;
+}
+
+a.navlink {
+    margin-right: 0.5em;
+}
+
+a.info {
+    color: green;
+}
+
+#navigation {
+    position: relative;
+    border: 2px solid;
+    padding: 0.5em;
+    margin: 0.5em;
+    background-color: #CCD6EB;
+}
+
+#userinfo {
+    position: absolute;
+    top: 0;
+    right: 0;
+    border: 2px solid;
+    margin: 0.5em;
+    padding: 0.5em;
+    width: 25%;
+    height: 50%;
+}
+
+#total {
+    font-size: 1.2em;
+    position: absolute;
+    right: 5px;
+    bottom: 5px;
+}
+
+#logout {
+    font-size: 0.8em;
+    position: absolute;
+    right: 5px;
+    top: 5px;
+}
+
+#interface {
+    background-color: #CCD6EB;
+    border: 2px solid;
+    margin: 0.5em;
+    padding: 0.5em;
+}
+
+#date-interface {
+    position: relative;
+    width: 100%;
+}
+
+#start-datepicker, #end-datepicker {
+    font-size: 0.5em;
+}
+
+#end-datepicker {
+    position: absolute;
+    top: 0;
+    left: 50%;
+}
+
+#account-nav {
+    padding-top: 1em;
+}
+
+#account-nav a {
+    margin: 1em;
+}
+
+.datepicker-header {
+    font-size: 1.5em;
+}
+
+.account {
+    width: 50%;
+    position: relative;
+    margin: 1em;
+    padding: 0.5em;
+    border: 2px solid;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+}
+
+.account-name {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.account-name, .balance {
+    font-size: 1.5em;
+}
+
+.button-container {
+    display: inline;
+}
+
+.income-button, .expense-button {
+    font-size: 1.2em;
+    margin: 0.2em;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+}
+
+.income-button:hover, .expense-button:hover {
+    cursor: pointer;
+}
+
+.income-button {
+    background-color: green;
+}
+
+.expense-button {
+    background-color: #B20000;
+}
+
+.amount {
+    position: absolute;
+    right: 5px;
+}
+
+.posting {
+    background-color: #E6EBF5;
+}
+

@@ -1,0 +1,14 @@
+.budget {
+    position: relative;
+}
+
+.running-balance {
+    position: relative;
+    background-color: #DBE2F1;
+}
+
+.balance-name {
+    position: relative;
+    left: 20%;
+}
+

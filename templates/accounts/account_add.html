@@ -1,0 +1,9 @@
+{% extends "accounts/base.html" %}
+
+{% block interface %}
+    <form method="post" action="#">{% csrf_token %}
+	{{ form.as_p }}
+	<input type="submit" value="Add" />
+    </form>
+{% endblock %}
+

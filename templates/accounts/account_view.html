@@ -1,0 +1,23 @@
+{% extends "accounts/base.html" %}
+
+{% block interface %}
+    <div class="account">
+	<span class="account-name">{{ account.name }}</span>
+	<span class="amount balance">{{ account.balance|stringformat:".2f" }}
+	    </span>
+	
+	{% for posting in account.postings %}
+	    <div class="posting">
+		<span class="date">{{ posting.date }}</span>
+		<span class="name">{{ posting.name }}</span>
+		<span class="amount">{{ posting.amount|stringformat:".2f" }}
+		    </span>
+	    </div>
+	    <div class="balance-result">
+		<span class="balance-label">Balance:</span>
+		<span class="amount">{{ posting.balance }}</span>
+	    </div>
+        {% endfor %}
+    </div>
+{% endblock %}
+

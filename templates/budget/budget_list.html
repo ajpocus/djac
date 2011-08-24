@@ -1,0 +1,35 @@
+{% extends "accounts/base.html" %}
+
+<head>
+{% block head %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}budget.css" />
+{% endblock %}
+</head>
+
+{% block interface %}
+    <div class="budget-nav">
+	<a href="/budget/">Unapplied</a>
+	<a href="/budget/applied/">Applied</a>
+    </div>
+    <a href="/budget/incomes/add/">Add Income</a>
+    <a href="/budget/expenses/add/">Add Expense</a>
+    {% if budgets %}
+	{% for budget in budgets %}
+	    <div class="budget">
+		<a href="/budget/apply/{{ budget.id }}">Apply</a>
+		<span class="date">{{ budget.date }}</span>
+		<span class="name">{{ budget.name }}</span>
+		<span class="amount">{{ budget.amount|stringformat:".2f" }}
+		    </span>
+	    </div>
+	    <div class="running-balance">
+		<span class="balance-name">{{ budget.account }}</span>
+		<span class="amount">
+		    {{ budget.balance|stringformat:".2f" }}</span>
+	    </div>
+	{% endfor %}		    
+    {% else %}
+	<p class="info">You don't have anything in your budget yet.</p>
+    {% endif %}
+{% endblock %}

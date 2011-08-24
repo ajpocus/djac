@@ -1,0 +1,29 @@
+{% extends "accounts/base.html" %}
+
+{% block interface %}
+    {% for account in accounts %}
+	<div class="account">
+	    <span class="name">{{ account.name }}</span>
+	    <span class="balance">{{ account.balance|stringformat:".2f" }}
+		</span>
+	    <a href="/expenses/add/{{ account.id }}/">Add Expense</a>
+	    {% if account.expenses %}
+		{% for expense in account.expenses %}
+		<div class="posting">
+		    <span class="date">{{ expense.date }}</span>
+		    <span class="name">{{ expense.name }}</span>
+		    <span class="amount">{{ expense.amount|stringformat:".2f" }}
+			</span>
+		</div>
+		<div class="balance-result">
+		    <span class="balance-label">Balance:</span>
+		    <span class="amount">{{ expense.balance }}</span>
+		</div>
+		{% endfor %}
+	    {% else %}
+		<p class="info">You don't have any expenses yet.</p>
+	    {% endif %}
+	</div>
+    {% endfor %}
+{% endblock %}
+

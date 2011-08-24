@@ -1,0 +1,51 @@
+{% extends "accounts/base.html" %}
+
+{% block interface %}
+    <div id="account-nav">
+	<a id="add-account" href="/accounts/add/">+ Add Account</a>
+	<a id="add-transfer" href="/accounts/transfer/">+ Add Transfer</a>
+    </div>
+
+    {% if accounts %}
+    <div id="account-list">
+        {% for account in accounts %}
+        <div class="account">
+	    <div class="account-summary">
+		<span class="account-name">{{ account.name }}</span>
+		<span class="amount">{{ account.balance|stringformat:".2f" }}
+		    </span>
+	    </div>
+	    <form class="button-container" method="link"
+		action="/incomes/add/{{ account.id }}">
+		<input class="income-button" type="submit"
+		    value="+ Add Income" />
+	    </form>
+	    <form class="button-container" method="link"
+		action="/expenses/add/{{ account.id }}">
+		<input class="expense-button" type="submit"
+		    value="+ Add Expense" />
+	    </form>
+
+	    {% for posting in account.postings %}
+	    <div class="posting">
+		<span class="date">{{ posting.date }}</span>
+		<span class="name">{{ posting.name }}</span>
+		<span class="amount">{{ posting.amount|stringformat:".2f" }}
+		    </span>
+	    </div>
+	    <div class="balance-result">Balance:
+		<span class="amount">{{ posting.balance|stringformat:".2f" }}
+		    </span>  
+            </div>
+	    {% endfor %}
+	    <form method="link" action="/accounts/view/{{ account.id }}/">
+		<input type="submit" value="View Details" />
+	    </form>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+        <a class="info" href="/accounts/add/">Create Your First Account</a>
+    {% endif %}
+{% endblock %}
+

@@ -1,0 +1,34 @@
+{% extends "accounts/base.html" %}
+
+{% block head %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}accounts.css"/>
+{% endblock %}
+
+{% block interface %}
+    {% for account in accounts %}
+	<div class="account">
+	    <span class="name">{{ account.name }}</span>
+	    <span class="balance">{{ account.balance|stringformat:".2f" }}
+		</span>
+	    <a href="/incomes/add/{{ account.id }}/">Add Income</a>
+	    {% if account.incomes %}
+		{% for income in account.incomes %}
+		<div class="posting">
+		    <span class="date">{{ income.date }}</span>
+		    <span class="name">{{ income.name }}</span>
+		    <span class="amount">{{ income.amount|stringformat:".2f" }}
+			</span>
+		</div>
+		<div class="balance-result">
+		    <span class="balance-label">Balance:</span>
+		    <span class="amount">{{ income.balance }}</span>
+		</div>
+		{% endfor %}
+	    {% else %}
+		<p class="info">You don't have any incomes yet.</p>
+	    {% endif %}
+	</div>
+    {% endfor %}
+{% endblock %}
+
