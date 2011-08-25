@@ -33,7 +33,8 @@ class BudgetIncomeForm(BudgetForm):
 	user = User.objects.get(id=uid)
 	profile = user.get_profile()
 
-	payer = Account.objects.get_or_create(data['name'])
+	# get_or_create returns (account, success) tuple
+	payer = Account.objects.get_or_create(name=data['name'])[0]
 	payee = data['account']
 	date = data['date']
 	amount = data['amount']
@@ -50,7 +51,8 @@ class BudgetExpenseForm(BudgetForm):
 	profile = user.get_profile()
 
 	payer = data['account']
-	payee = Account.objects.get_or_create(data['name'])
+	# get_or_create returns (account, success) tuple
+	payee = Account.objects.get_or_create(name=data['name'])[0]
 	date = data['date']
 	amount = data['amount']
 	budget = Budget.objects.create(payer=payer, payee=payee, date=date,

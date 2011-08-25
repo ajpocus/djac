@@ -16,12 +16,12 @@ class Journal(models.Model):
 class Posting(models.Model):
     date = models.DateField(default=datetime.date.today)
     amount = models.DecimalField(max_digits=14, decimal_places=2,
-	default='0.00')
+	default=decimal.Decimal('0.00'))
     account = models.ForeignKey('Account')
     journal = models.ForeignKey(Journal)
 
-    def __unicode__(self):
-	return "%s, %s, %s" % (self.date, self.amount, self.account.name)
+#    def __unicode__(self):
+#	return "%s, %.2f, %s" % (self.date, self.amount, self.account.name)
 
 
 def posting_pre_save(sender, instance, **kwargs):
@@ -62,10 +62,10 @@ pre_delete.connect(posting_pre_delete, sender=Posting)
 class Account(models.Model):
     name = models.CharField(max_length=64)
     balance = models.DecimalField(max_digits=14, decimal_places=2,
-	default='0.00')
+	default=decimal.Decimal('0.00'))
 
-    def __unicode__(self):
-	return "%s: %.2f" % (self.name, self.balance)
+#    def __unicode__(self):
+#	return "%s: %.2f" % (self.name, unicode(self.balance))
 
     def get_balance_on(self, date):
 	postings = Posting.objects.filter(account__id=self.id).filter(
@@ -83,7 +83,8 @@ class Account(models.Model):
 	    return total
 
     def add_credit(self, date, name, amount):
-	payer = Account.objects.get_or_create(name)
+	# get_or_create returns (account, success) tuple
+	payer = Account.objects.get_or_create(name=name)[0]
 
         journal = Journal(type="Expense")
         journal.save()
@@ -97,7 +98,8 @@ class Account(models.Model):
 	    account=self, journal=journal)
 
     def add_debit(self, date, name, amount):
-	payee = Account.objects.get_or_create(name)
+	# get_or_create returns (account, success) tuple
+	payee = Account.objects.get_or_create(name=name)[0]
 
         journal = Journal(type="Expense")
         journal.save()
@@ -111,7 +113,8 @@ class Account(models.Model):
 	    account=payee, journal=journal)
 
     def add_transfer(self, date, name, amount):
-	payee = Account.objects.get_or_create(name)
+	# get_or_create returns (account, success) tuple
+	payee = Account.objects.get_or_create(name=name)[0]
 
 	journal = Journal(type="Transfer")
 	journal.save()

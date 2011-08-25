@@ -54,7 +54,7 @@ def income_add(request, account_id):
     if request.method == 'POST':
 	form = IncomeAddForm(request.POST)
 	if form.is_valid():
-	    form.process(user.id, account_id)
+	    form.process(request.user.id, account_id)
 	    return redirect('/incomes/')
     else:
 	form = IncomeAddForm()
