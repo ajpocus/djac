@@ -86,7 +86,7 @@ class Account(models.Model):
 	# get_or_create returns (account, success) tuple
 	payer = Account.objects.get_or_create(name=name)[0]
 
-        journal = Journal(type="Expense")
+        journal = Journal(type="Income")
         journal.save()
 
         credit_amt = amount.to_eng_string()
