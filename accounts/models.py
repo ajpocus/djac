@@ -101,6 +101,9 @@ class AccountManager(Manager):
     def get_query_set(self):
         return AccountQuerySet(self.model)
 
+    def __getattr__(self, name):
+	return getattr(self.get_query_set(), name)
+
 
 class Account(models.Model):
     name = models.CharField(max_length=64)
