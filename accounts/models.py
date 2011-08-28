@@ -3,8 +3,10 @@ import datetime
 
 from django.db import models
 from django.db import transaction
-from django.db.models import Sum
+from django.db.models import Sum, Manager
+from django.db.models.query import QuerySet
 from django.db.models.signals import pre_save, post_save, pre_delete
+
 
 class Journal(models.Model):
     type = models.CharField(max_length=128)
@@ -59,10 +61,52 @@ pre_save.connect(posting_pre_save, sender=Posting)
 post_save.connect(posting_post_save, sender=Posting)
 pre_delete.connect(posting_pre_delete, sender=Posting)
 
+
+# I used a custom QuerySet to allow filter chaining, rather than attaching the
+# method to Account.objects through AccountManager.
+class AccountQuerySet(QuerySet):
+    def get_running_balance(self, start_date, end_date):
+        accounts = []
+
+        for account in self:
+            posting_list = Posting.objects.order_by('date').filter(
+                account=account).filter(
+                date__gte=start_date).filter(
+                date__lte=end_date)
+
+            postings = []
+            running_balance = account.get_balance_on(start_date)
+            for posting in posting_list:
+                name = Posting.objects.filter(journal=posting.journal).exclude(
+                    account=account)[0].account.name
+                running_balance += posting.amount
+                postings.append({
+                    'date': posting.date.strftime("%M %d, %Y"),
+                    'name': name,
+                    'amount': posting.amount,
+                    'balance': running_balance,
+                })
+
+            accounts.append({
+                'id': account.id,
+                'name': account.name,
+                'balance': account.balance,
+                'postings': postings,
+            })
+
+        return accounts
+
+
+class AccountManager(Manager):
+    def get_query_set(self):
+        return AccountQuerySet(self.model)
+
+
 class Account(models.Model):
     name = models.CharField(max_length=64)
     balance = models.DecimalField(max_digits=14, decimal_places=2,
 	default=decimal.Decimal('0.00'))
+    objects = AccountManager()
 
     def __unicode__(self):
 	return "%s: %.2f" % (self.name, self.balance)

@@ -15,36 +15,9 @@ from accounts.models import Posting
 @login_required
 def account_list(request):
     profile = request.user.get_profile()
-    account_q = profile.accounts.all()
     start_date = profile.start_date
     end_date = profile.end_date
-
-    accounts = []
-    for account in account_q:
-	posting_list = Posting.objects.order_by('date').filter(
-	    account=account).filter(
-	    date__gte=start_date).filter(
-	    date__lte=end_date)
-
-	postings = []
-	running_balance = account.get_balance_on(start_date)
-	for posting in posting_list:
-	    name = Posting.objects.filter(journal=posting.journal).exclude(
-		account=account)[0].account.name
-	    running_balance += posting.amount
-	    postings.append({
-		'date': posting.date,
-		'name': name,
-		'amount': posting.amount,
-		'balance': running_balance,
-	    })	    
-
-	accounts.append({
-	    'id': account.id,
-	    'name': account.name,
-	    'balance': account.balance,
-	    'postings': postings,
-	})
+    accounts = profile.accounts.all().get_running_balance(start_date, end_date)
 
     c = RequestContext(request, {
 	'accounts': accounts,
@@ -64,34 +37,7 @@ def account_json(request):
     start_date = datetime.date(start_year, start_month, start_day)
     end_date = datetime.date(end_year, end_month, end_day)
     profile = request.user.get_profile()
-    account_q = profile.accounts.all()
-    accounts = []
-
-    for account in account_q:
-	posting_list = Posting.objects.order_by('date').filter(
-	    account=account).filter(
-	    date__gte=start_date).filter(
-	    date__lte=end_date)
-
-	postings = []
-	running_balance = account.get_balance_on(start_date)
-	for posting in posting_list:
-            name = Posting.objects.filter(journal=posting.journal).exclude(
-                account=account)[0].account.name
-            running_balance += posting.amount
-            postings.append({
-                'date': posting.date.strftime("%M %d, %Y"),
-                'name': name,
-                'amount': str(posting.amount),
-                'balance': str(running_balance),
-            })
-
-        accounts.append({
-            'id': account.id,
-            'name': account.name,
-            'balance': str(account.balance),
-            'postings': postings,
-        })
+    accounts = profile.accounts.all().get_running_balance(start_date, end_date)
 
     c = RequestContext(request, {
 	'accounts': accounts,
