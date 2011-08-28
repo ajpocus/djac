@@ -20,8 +20,8 @@ class Posting(models.Model):
     account = models.ForeignKey('Account')
     journal = models.ForeignKey(Journal)
 
-#    def __unicode__(self):
-#	return "%s, %.2f, %s" % (self.date, self.amount, self.account.name)
+    def __unicode__(self):
+	return "%s, %.2f, %s" % (self.date, self.amount, self.account.name)
 
 
 def posting_pre_save(sender, instance, **kwargs):
@@ -64,8 +64,8 @@ class Account(models.Model):
     balance = models.DecimalField(max_digits=14, decimal_places=2,
 	default=decimal.Decimal('0.00'))
 
-#    def __unicode__(self):
-#	return "%s: %.2f" % (self.name, unicode(self.balance))
+    def __unicode__(self):
+	return "%s: %.2f" % (self.name, self.balance)
 
     def get_balance_on(self, date):
 	postings = Posting.objects.filter(account__id=self.id).filter(
