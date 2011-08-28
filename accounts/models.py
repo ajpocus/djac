@@ -81,7 +81,7 @@ class AccountQuerySet(QuerySet):
                     account=account)[0].account.name
                 running_balance += posting.amount
                 postings.append({
-                    'date': posting.date.strftime("%M %d, %Y"),
+                    'date': posting.date.strftime("%B %d, %Y"),
                     'name': name,
                     'amount': posting.amount,
                     'balance': running_balance,
