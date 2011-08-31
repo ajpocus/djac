@@ -4,6 +4,8 @@ import datetime
 from django import forms
 from django.contrib.auth.models import User
 
+from accounts.models import Account
+
 class ExpenseAddForm(forms.Form):
     name = forms.CharField(max_length=64)
     amount = forms.DecimalField(max_digits=14, decimal_places=2)
@@ -32,6 +34,6 @@ class ExpenseAddForm(forms.Form):
 	name = data['name']
 	amount = data['amount']
 	account = profile.accounts.get(id=account_id)
-
-	account.add_debit(date=date, name=name, amount=amount)
+	payee = Account.objects.get_or_create(name=name, owner=user)[0]
+	account.add_debit(date=date, payee=payee, amount=amount)
 

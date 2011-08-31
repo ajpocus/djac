@@ -9,7 +9,7 @@ var DateRange = function (default_start, default_end) {
 	var end_month = (end_date.getMonth() + 1);
 	var end_day = end_date.getDate();
 
-	$.get("/accounts/json/",
+	$.get("/accounts/range/",
 	    {
 		start_year: start_year,
 		start_month: start_month,

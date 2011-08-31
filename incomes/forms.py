@@ -5,6 +5,8 @@ from django import forms
 from django.forms.extras.widgets import SelectDateWidget
 from django.contrib.auth.models import User
 
+from accounts.models import Account
+
 class IncomeAddForm(forms.Form):
     name = forms.CharField(max_length=64)
     amount = forms.DecimalField(max_digits=14, decimal_places=2)
@@ -35,5 +37,6 @@ class IncomeAddForm(forms.Form):
 	date = data['date']
 	
 	account = profile.accounts.get(id=account_id)
-	account.add_credit(date=date, name=name, amount=amount)
+	payer = Account.objects.get_or_create(name=name, owner=user)[0]
+	account.add_credit(date=date, payer=payer, amount=amount)
 

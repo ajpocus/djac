@@ -19,19 +19,19 @@ def expense_list(request):
 	    account=account).filter(amount__lt=0)
 
 	expenses = []
-	running_balance = decimal.Decimal('0.00')
+	running_total = decimal.Decimal('0.00')
 	for posting in posting_q:
 	    amount = posting.amount
 	    date = posting.date
 	    journal = posting.journal.id
 	    name = Posting.objects.filter(journal__id=journal).exclude(
 		id=posting.id)[0].account.name
-	    running_balance -= amount
+	    running_total += amount
 	    expenses.append({
 		'name': name,
 		'date': date,
 		'amount': amount,
-		'balance': running_balance,
+		'total': running_total,
 	    })
 
 	accounts.append({
@@ -53,7 +53,7 @@ def expense_add(request, account_id):
     if request.method == 'POST':
 	form = ExpenseAddForm(request.POST)
 	if form.is_valid():
-	    form.process(user.id, account_id)
+	    form.process(request.user.id, account_id)
 	    return redirect('/expenses/')
     else:
 	form = ExpenseAddForm()

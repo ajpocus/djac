@@ -18,7 +18,7 @@ def income_list(request):
 	posting_q = Posting.objects.order_by('date').filter(
 	    account=account).filter(amount__gt=0)
 	total_income = sum([posting.amount for posting in posting_q])
-	running_balance = decimal.Decimal('0.00')
+	running_total = decimal.Decimal('0.00')
 
 	incomes = []
 	for posting in posting_q:
@@ -27,12 +27,12 @@ def income_list(request):
 	    journal = posting.journal.id
 	    name = Posting.objects.filter(journal__id=journal).exclude(
 		id=posting.id)[0].account.name
-	    running_balance += posting.amount
+	    running_total += posting.amount
 	    incomes.append({
 		'name': name,
 		'date': date,
 		'amount': amount,
-		'balance': running_balance,
+		'total': running_total,
 	    })
 
 	accounts.append({

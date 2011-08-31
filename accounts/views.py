@@ -26,7 +26,7 @@ def account_list(request):
     return render(request, 'accounts/account_list.html', context_instance=c)
 
 @login_required
-def account_json(request):
+def account_range(request):
     start_year = int(request.GET.get('start_year'))
     start_month = int(request.GET.get('start_month'))
     start_day = int(request.GET.get('start_day'))

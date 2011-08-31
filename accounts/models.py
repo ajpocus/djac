@@ -1,6 +1,7 @@
 import decimal
 import datetime
 
+from django.contrib.auth.models import User
 from django.db import models
 from django.db import transaction
 from django.db.models import Sum, Manager
@@ -109,6 +110,7 @@ class Account(models.Model):
     name = models.CharField(max_length=64)
     balance = models.DecimalField(max_digits=14, decimal_places=2,
 	default=decimal.Decimal('0.00'))
+    owner = models.ForeignKey(User)
     objects = AccountManager()
 
     def __unicode__(self):
@@ -129,10 +131,7 @@ class Account(models.Model):
 	    total = decimal.Decimal('0.00')
 	    return total
 
-    def add_credit(self, date, name, amount):
-	# get_or_create returns (account, success) tuple
-	payer = Account.objects.get_or_create(name=name)[0]
-
+    def add_credit(self, date, payer, amount):
         journal = Journal(type="Income")
         journal.save()
 
@@ -144,10 +143,7 @@ class Account(models.Model):
         credit = Posting.objects.create(date=date, amount=credit_amt,
 	    account=self, journal=journal)
 
-    def add_debit(self, date, name, amount):
-	# get_or_create returns (account, success) tuple
-	payee = Account.objects.get_or_create(name=name)[0]
-
+    def add_debit(self, date, payee, amount):
         journal = Journal(type="Expense")
         journal.save()
 

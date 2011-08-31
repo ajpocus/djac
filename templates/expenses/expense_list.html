@@ -15,9 +15,9 @@
 		    <span class="amount">{{ expense.amount|stringformat:".2f" }}
 			</span>
 		</div>
-		<div class="balance-result">
-		    <span class="balance-label">Balance:</span>
-		    <span class="amount">{{ expense.balance }}</span>
+		<div class="total-result">
+		    <span class="total-label">Total:</span>
+		    <span class="amount">{{ expense.total }}</span>
 		</div>
 		{% endfor %}
 	    {% else %}

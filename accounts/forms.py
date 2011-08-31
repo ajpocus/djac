@@ -15,7 +15,7 @@ class AccountAddForm(forms.ModelForm):
         profile = user.get_profile()
         accounts = profile.accounts
 
-        account = Account(name=name)
+        account = Account(name=name, owner=user)
         account.save()
         accounts.add(account)
         profile.save()
