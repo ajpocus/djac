@@ -2,7 +2,7 @@
 
 **OVERVIEW**
 
-    Djac is a double entry accounting app for Django. Included are the standalone accounts app, and many usable example views and templates.
+Djac is a double entry accounting app for Django. Included are the standalone accounts app, and many usable example views and templates.
 
 **REQUIREMENTS**
     Djac uses:
@@ -20,7 +20,7 @@ I strongly recommend using virtualenv to create a separate environment.
 
 **USAGE**
 
-    Djac has a usable web interface (though not the best-looking). It can be activated with the Django development server, from the project root:
+Djac has a usable web interface (though not the best-looking). It can be activated with the Django development server, from the project root:
 
 `$ ./manage.py runserver`
 
@@ -28,7 +28,7 @@ The interface can be found at http://localhost:8000/accounts. You can also use t
 
 **AUTHORS**
 
-    Djac is written by Austin Pocus, copright 2011, under the BSD license. Details may be found in LICENSE. Djac wouldn't exist without the help of this great software:
+Djac is written by Austin Pocus, copright 2011, under the BSD license. Details may be found in LICENSE. Djac wouldn't exist without the help of this great software:
 
 - Django
 - PostgreSQL
