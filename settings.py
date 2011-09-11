@@ -133,6 +133,7 @@ INSTALLED_APPS = (
     'incomes',
     'expenses',
     'users',
+    'analytics',
 )
 
 # A sample logging configuration. The only tangible logging

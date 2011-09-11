@@ -57,6 +57,10 @@ def posting_post_save(sender, instance, created, **kwargs):
 def posting_pre_delete(sender, instance, **kwargs):
     instance.account.balance -= instance.amount
     instance.account.save()
+    if not Posting.objects.filter(journal=instance.journal).exclude(
+	id=instance.id):
+	instance.journal.delete()
+	posting=instance
 
 pre_save.connect(posting_pre_save, sender=Posting)
 post_save.connect(posting_post_save, sender=Posting)

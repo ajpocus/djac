@@ -1,0 +1,11 @@
+{% extends "accounts/base.html" %}
+
+{% block head %}
+    {{ block.super }}
+    <script type="text/javascript" src="{{ STATIC_URL }}js/expenses_chart.js">
+	</script>
+{% endblock %}
+
+{% block interface %}
+    <canvas id="canvas" width="400" height="300"></canvas>
+{% endblock %}

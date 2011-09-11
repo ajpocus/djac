@@ -120,6 +120,11 @@ a.info {
     font-size: 1.5em;
 }
 
+.account .balance {
+    position: absolute;
+    right: 5px;
+}
+
 .button-container {
     display: inline;
 }

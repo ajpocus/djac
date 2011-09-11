@@ -16,7 +16,9 @@
 	<a class="navlink" href="/budget">Budget</a>
 
 	<div id="userinfo">
-	    <div id="welcome">Welcome, {{ user.first_name }}!</div>
+	    <div id="welcome">Welcome{% if user.isauthenticated %}
+		, {{ user.first_name }}
+	    {% endif %}!</div>
 	    <div id="total">
 		Balance: {{ total|stringformat:".2f" }}
 	    </div>
