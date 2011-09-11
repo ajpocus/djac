@@ -2,10 +2,14 @@
 
 {% block head %}
     {{ block.super }}
-    <script type="text/javascript" src="{{ STATIC_URL }}js/expenses_chart.js">
+    <link rel="stylesheet" type="text/css"
+	href="{{ STATIC_URL }}css/expense_chart.css" />
+    <script type="text/javascript" src="{{ STATIC_URL }}js/chart.js">
 	</script>
 {% endblock %}
 
 {% block interface %}
-    <canvas id="canvas" width="400" height="300"></canvas>
+    <div id="legend"></div>
+    <canvas id="canvas" class="expense-chart" width="400" height="300">
+	</canvas>
 {% endblock %}

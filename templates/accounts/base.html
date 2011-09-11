@@ -4,6 +4,8 @@
     <title>Djac</title>
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}base.css"/>
     <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}jquery-ui.css"/>
+    <script type="text/javascript" src="{{ STATIC_URL }}jquery.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}jquery-ui.min.js"></script>
 {% endblock %}
 </head>
 
@@ -14,6 +16,7 @@
 	<a class="navlink" href="/incomes">Incomes</a>
 	<a class="navlink" href="/expenses">Expenses</a>
 	<a class="navlink" href="/budget">Budget</a>
+	<a class="navlink" href="/analytics/expenses/">Analytics</a>
 
 	<div id="userinfo">
 	    <div id="welcome">Welcome{% if user.isauthenticated %}
@@ -41,8 +44,6 @@
 
 {% block footer %}
 <footer>
-    <script type="text/javascript" src="{{ STATIC_URL }}jquery.min.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}jquery-ui.min.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}daterange.js"></script>
     <script type="text/javascript">
 	DateRange("{{ start_date }}", "{{ end_date }}");

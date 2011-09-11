@@ -8,11 +8,13 @@ from django.shortcuts import render
 
 from accounts.models import Posting
 
+@login_required
 def analytics_expenses_chart(request):
     c = RequestContext(request)
     return render(request, 'analytics/analytics_expenses_chart.html',
 	context_instance=c)
 
+@login_required
 def analytics_expenses_json(request):
     percents = {}
     total = decimal.Decimal('0.00')
