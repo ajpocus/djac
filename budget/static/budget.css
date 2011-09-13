@@ -2,9 +2,14 @@
     position: relative;
 }
 
-.running-balance {
+.account-summary {
     position: relative;
     background-color: #DBE2F1;
+}
+
+.running-balance {
+    position: absolute;
+    right: 5px;
 }
 
 .balance-name {

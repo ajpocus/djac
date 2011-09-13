@@ -7,7 +7,9 @@ from django.template import RequestContext
 from django.shortcuts import render, redirect, get_object_or_404
 
 from budget.forms import BudgetIncomeForm, BudgetExpenseForm
+from budget.forms import AutoBudgetExpenseForm, AutoBudgetIncomeForm
 from budget.models import Budget
+from accounts.models import Account
 
 @login_required
 def budget_list(request):
@@ -65,12 +67,16 @@ def budget_list(request):
 def budget_list_applied(request):
     profile = request.user.get_profile()
     account_q = profile.accounts.all()
+    start_date = profile.start_date
+    end_date = profile.end_date
+
     budget_q = profile.budgets.order_by('date').filter(
 	date__gte=start_date).filter(
 	date__lte=end_date).filter(
 	is_applied=True)
 
     budgets = []
+    running_balance = {}
     for budget in budget_q:
 	payer = budget.payer
         payee = budget.payee
@@ -82,6 +88,14 @@ def budget_list_applied(request):
         elif account_q.filter(id=payer.id).exists():
             account = payer.name
             name = payee.name
+	    amount = -amount
+
+	if account in running_balance:
+	    running_balance[account] += amount
+	else:
+	    running_balance[account] = Account.objects.get(
+		name__exact=account).get_balance_on(start_date)
+	    running_balance[account] += amount
 
 	budgets.append({
 	    'id': budget.id,
@@ -89,6 +103,7 @@ def budget_list_applied(request):
 	    'name': name,
 	    'account': account,
 	    'amount': amount,
+	    'balance': running_balance[account],
 	})
 
     c = RequestContext(request, {
@@ -139,4 +154,38 @@ def budget_apply(request, budget_id):
     budget.is_applied = not budget.is_applied
     budget.save()
     return redirect('/budget/')
+
+@transaction.commit_on_success
+@login_required
+def budget_automated_income(request):
+    uid = request.user.id
+    if request.method == 'POST':
+	form = AutoBudgetIncomeForm(request.POST, uid=uid)
+	if form.is_valid():
+	    form.process(uid=uid)
+	    return redirect('/budget/')
+    else:
+	form = AutoBudgetIncomeForm(uid=uid)
+
+    c = RequestContext(request, {
+	'form': form,
+    })
+    return render(request, 'budget/budget_automated.html', context_instance=c)
+
+@transaction.commit_on_success
+@login_required
+def budget_automated_expense(request):
+    uid = request.user.id
+    if request.method == 'POST':
+	form = AutoBudgetExpenseForm(request.POST, uid=uid)
+	if form.is_valid():
+	    form.process(uid=uid)
+	    return redirect('/budget/')
+    else:
+	form = AutoBudgetExpenseForm(uid=uid)
+
+    c = RequestContext(request, {
+	'form': form,
+    })
+    return render(request, 'budget/budget_automated.html', context_instance=c)
 

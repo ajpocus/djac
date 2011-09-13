@@ -19,8 +19,9 @@
 		<span class="amount">{{ budget.amount|stringformat:".2f" }}
 		    </span>
 	    </div>
-	    <div class="running-balance">
-		<span class="balance-name">{{ budget.account }}</span>
+	    <div class="account-summary">
+		<span class="balance-name">{{ budget.account }} Balance:</span>
+		<span class="running-balance">{{ budget.balance }}</span>
 	    </div>
 	{% endfor %}
     {% else %}

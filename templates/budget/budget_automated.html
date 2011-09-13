@@ -1,0 +1,31 @@
+{% extends "accounts/base.html" %}
+
+{% block interface %}
+<form action="#" method="post">{% csrf_token %}
+    <p>{{ form.frequency.errors }} {{ form.delta.errors }}
+	Every {{ form.frequency }} {{ form.delta }}</p>
+    <p>{{ form.start_date.errors }}
+	<label for="id_start_date">Start date:</label>{{ form.start_date }}</p>
+    <p>{{ form.end_date.errors }}
+	<label for="id_end_date">End date:</label>{{ form.end_date }}</p>
+    <p>{{ form.amount.errors }}
+	<label for="id_amount">Amount:</label>{{ form.amount }}</p>
+    <p>{{ form.name.errors }}
+	<label for="id_name">Name:</label>{{ form.name }}</p>
+    <p>{{ form.account.errors }}
+	<label for="id_account">Account:</label>{{ form.account }}</p>
+    <input type="submit" value="Submit" />
+</form>
+{% endblock %}
+
+{% block footer %}
+    {{ block.super }}
+
+    <script type="text/javascript">
+	$(function () {
+	  $("p #id_start_date").datepicker({ dateFormat: 'mm/dd/yy' });
+	  $("p #id_end_date").datepicker({ dateFormat: 'mm/dd/yy' });
+	});
+    </script>
+{% endblock %}
+
