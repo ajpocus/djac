@@ -130,11 +130,17 @@ class Account(models.Model):
 	credits = postings.filter(amount__gt=0)
 	debits = postings.filter(amount__lt=0)
 
-	if credits and debits:
+	if credits.exists() or debits.exists():
 	    credit_total = credits.aggregate(Sum('amount'))['amount__sum']
 	    debit_total = debits.aggregate(Sum('amount'))['amount__sum']
+
+	    if not credit_total:
+		credit_total = decimal.Decimal('0.00')
+	    if not debit_total:
+		debit_total = decimal.Decimal('0.00')
+
 	    total = credit_total + debit_total
-	    return self.balance - total
+	    return self.balance + total
 	else:
 	    total = decimal.Decimal('0.00')
 	    return total
