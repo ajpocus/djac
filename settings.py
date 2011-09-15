@@ -128,6 +128,7 @@ INSTALLED_APPS = (
     'django.contrib.admindocs',
     'south',
     'debug_toolbar',
+    'fixture_generator',
     'accounts',
     'budget',
     'incomes',

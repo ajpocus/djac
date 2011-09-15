@@ -67,8 +67,8 @@ post_save.connect(posting_post_save, sender=Posting)
 pre_delete.connect(posting_pre_delete, sender=Posting)
 
 
-# I used a custom QuerySet to allow filter chaining, rather than attaching the
-# method to Account.objects through AccountManager.
+# I used a custom QuerySet to allow filter chaining with get_running_balance,
+# rather than attaching the method to Account.objects through AccountManager.
 class AccountQuerySet(QuerySet):
     def get_running_balance(self, start_date, end_date):
         accounts = []
@@ -107,6 +107,10 @@ class AccountManager(Manager):
         return AccountQuerySet(self.model)
 
     def __getattr__(self, name):
+	# This check stops a recursion depth problem described in Django
+	# ticket #15062
+	if name.startswith("_"):
+	    raise AttributeError
 	return getattr(self.get_query_set(), name)
 
 

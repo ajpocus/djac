@@ -1,16 +1,20 @@
-"""
-This file demonstrates writing tests using the unittest module. These will pass
-when you run "manage.py test".
-
-Replace this with more appropriate tests for your application.
-"""
+import decimal
 
 from django.test import TestCase
+from django.contrib.auth.models import User
+from accounts.models import Account
 
+class AccountTestCase(TestCase):
+    fixtures = ['test_data.json',]
 
-class SimpleTest(TestCase):
-    def test_basic_addition(self):
-        """
-        Tests that 1 + 1 always equals 2.
-        """
-        self.assertEqual(1 + 1, 2)
+    def setUp(self):
+	self.user = User.objects.get(username="foobar")
+	self.account = self.user.get_profile().accounts.get_or_create(
+	    name='Test', owner=self.user)[0]
+
+    def test_balance_init(self):
+	self.assertEqual(self.account.balance, decimal.Decimal('0.00'))
+	
+    def tearDown(self):
+	self.user.delete()
+
