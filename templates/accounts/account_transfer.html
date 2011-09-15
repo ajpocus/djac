@@ -7,3 +7,13 @@
     </form>
 {% endblock %}
 
+{% block footer %}
+    {{ block.super }}
+
+    <script type="text/javascript">
+        $(function() {
+            $("p #id_date").datepicker({ dateFormat: 'mm/dd/yy' });
+        });
+    </script>
+{% endblock %}
+

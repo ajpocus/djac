@@ -27,6 +27,12 @@ class AccountAddForm(forms.ModelForm):
 class AccountTransferForm(forms.Form):
     payer = forms.CharField(max_length=64)
     payee = forms.CharField(max_length=64)
+    date = forms.DateField(('%m/%d/%Y',),
+        widget=forms.DateTimeInput(format='%m/%d/%Y', attrs={
+            'class': 'input',
+            'size': '15',
+        })
+    )
     amount = forms.DecimalField(max_digits=14, decimal_places=2)
 
     def process(self, uid):
@@ -39,7 +45,9 @@ class AccountTransferForm(forms.Form):
 	payee = data['payee']
 	amount = data['amount']
 
-	profile.add_transfer(payer, payee, amount)
+	payer = accounts.get_or_create(name=payer, owner=user)[0]
+	payee = accounts.get_or_create(name=payee, owner=user)[0]
+	payer.add_transfer(data['date'], payee, amount)
 
 class TransactionForm(forms.Form):
     name = forms.CharField(max_length=64)

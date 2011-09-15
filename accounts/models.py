@@ -163,12 +163,10 @@ class Account(models.Model):
         credit = Posting.objects.create(date=date, amount=credit_amt,
 	    account=payee, journal=journal)
 
-    def add_transfer(self, date, name, amount):
-	# get_or_create returns (account, success) tuple
-	payee = Account.objects.get_or_create(name=name)[0]
-
+    def add_transfer(self, date, payee, amount):
 	journal = Journal(type="Transfer")
 	journal.save()
+
 	credit_amt = amount.to_eng_string()
 	debit_amt = '-' + credit_amt
 
