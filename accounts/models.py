@@ -6,7 +6,8 @@ from django.db import models
 from django.db import transaction
 from django.db.models import Sum, Manager
 from django.db.models.query import QuerySet
-from django.db.models.signals import pre_save, post_save, pre_delete
+from django.db.models.signals import pre_save, post_save
+from django.db.models.signals import pre_delete, post_delete
 
 
 class Journal(models.Model):
@@ -57,14 +58,17 @@ def posting_post_save(sender, instance, created, **kwargs):
 def posting_pre_delete(sender, instance, **kwargs):
     instance.account.balance -= instance.amount
     instance.account.save()
-    if not Posting.objects.filter(journal=instance.journal).exclude(
-	id=instance.id):
+
+def posting_post_delete(sender, instance, **kwargs):
+    try:
 	instance.journal.delete()
-	posting=instance
+    except Journal.DoesNotExist:
+	pass
 
 pre_save.connect(posting_pre_save, sender=Posting)
 post_save.connect(posting_post_save, sender=Posting)
 pre_delete.connect(posting_pre_delete, sender=Posting)
+post_delete.connect(posting_post_delete, sender=Posting)
 
 
 # I used a custom QuerySet to allow filter chaining with get_running_balance,
@@ -80,9 +84,12 @@ class AccountQuerySet(QuerySet):
                 date__lte=end_date)
 
             postings = []
-            running_balance = account.get_balance_on(start_date)
+	    day = datetime.timedelta(days=1)
+	    bal_start = start_date - day
+            running_balance = account.get_balance_on(bal_start)
             for posting in posting_list:
-                name = Posting.objects.filter(journal=posting.journal).exclude(
+                name = Posting.objects.order_by('date').filter(
+		    journal=posting.journal).exclude(
                     account=account)[0].account.name
                 running_balance += posting.amount
                 postings.append({
@@ -125,7 +132,8 @@ class Account(models.Model):
 	return "%s: %.2f" % (self.name, self.balance)
 
     def get_balance_on(self, date):
-	postings = Posting.objects.filter(account__id=self.id).filter(
+	postings = Posting.objects.order_by('date').filter(
+	    account__id=self.id).filter(
 	    date__lte=date)
 	credits = postings.filter(amount__gt=0)
 	debits = postings.filter(amount__lt=0)
@@ -140,10 +148,10 @@ class Account(models.Model):
 		debit_total = decimal.Decimal('0.00')
 
 	    total = credit_total + debit_total
-	    return self.balance + total
 	else:
 	    total = decimal.Decimal('0.00')
-	    return total
+
+	return total
 
     def add_credit(self, date, payer, amount):
         journal = Journal(type="Income")

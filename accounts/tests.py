@@ -3,17 +3,17 @@ from datetime import date, timedelta
 
 from django.test import TestCase
 from django.contrib.auth.models import User
-from accounts.models import Account
+from accounts.models import Account, Posting
 
 class AccountTestCase(TestCase):
     fixtures = ['test_data.json',]
 
     def setUp(self):
 	self.user = User.objects.get(username='foobar')
-	self.account = self.user.get_profile().accounts.get_or_create(
-	    name='Bank', owner=self.user)[0]
-	self.cash = self.user.get_profile().accounts.get_or_create(
-	    name='Cash', owner=self.user)[0]
+	self.account = self.user.get_profile().accounts.create(name='Bank',
+	    owner=self.user)
+	self.cash = self.user.get_profile().accounts.create(name='Cash',
+	    owner=self.user)
 
 	self.paycheck = Account.objects.create(name='Paycheck',
 	    owner=self.user)
@@ -23,6 +23,12 @@ class AccountTestCase(TestCase):
 	self.debit_amt = decimal.Decimal('75.64')
 	self.transfer_amt = decimal.Decimal('50.00')
 
+    def tearDown(self):
+	self.account.delete()
+	self.cash.delete()
+	self.paycheck.delete()
+	self.phone_bill.delete()
+	
     def test_add_credit(self):
 	self.account.add_credit(date.today(), self.paycheck, self.credit_amt)
 
@@ -46,20 +52,20 @@ class AccountTestCase(TestCase):
 	self.assertEqual(self.cash.balance, self.transfer_amt)
 
     def test_get_balance_on(self):
+	td = timedelta(days=15)
 	second = date.today()
-	first = second - timedelta(days=24)
-	third = second + timedelta(days=15)
+	first = second - td
+	third = second + td
 
-	self.account.add_credit(first, self.paycheck, self.credit_amt)
-	self.account.add_debit(second, self.phone_bill, self.debit_amt)
-	self.account.add_transfer(third, self.cash, self.transfer_amt)
-
-	start_amt = self.credit_amt - self.debit_amt - self.transfer_amt
-	first_amt = start_amt + self.credit_amt
+	first_amt = self.credit_amt
 	second_amt = first_amt - self.debit_amt
 	third_amt = second_amt - self.transfer_amt
 	zero = decimal.Decimal('0.00')
 	days = timedelta(days=3)
+
+	self.account.add_credit(first, self.paycheck, self.credit_amt)
+	self.account.add_debit(second, self.phone_bill, self.debit_amt)
+	self.account.add_transfer(third, self.cash, self.transfer_amt)
 
 	before_first = first - days
 	after_first = first + days
@@ -77,8 +83,32 @@ class AccountTestCase(TestCase):
 	self.assertEqual(self.account.get_balance_on(after_third), third_amt)
 	self.assertEqual(self.cash.get_balance_on(before_third), zero)
 	self.assertEqual(self.cash.get_balance_on(after_third),
-	    (self.transfer_amt * 2))
+	    self.transfer_amt)
 
-    def tearDown(self):
-	self.user.delete()
+    def test_get_running_balance(self):
+	td = timedelta(days=15)
+	second = date.today()
+	first = second - td
+	third = second + td
+	zero = decimal.Decimal('0.00')
+
+	self.account.add_credit(first, self.paycheck, self.credit_amt)
+	self.account.add_debit(second, self.phone_bill, self.debit_amt)
+	self.account.add_transfer(third, self.cash, self.transfer_amt)
+
+	bal = self.user.get_profile().accounts.get_running_balance(
+	    first, third)
+	for account in bal:
+	    if account['name'] == 'Bank':
+		acct = account
+
+	first_amt = self.credit_amt
+	second_amt = first_amt - self.debit_amt
+	third_amt = second_amt - self.transfer_amt
+
+	self.assertEqual(len(acct['postings']), 3)
+	self.assertEqual(acct['balance'], self.account.balance)
+	self.assertEqual(acct['postings'][0]['balance'], first_amt)
+	self.assertEqual(acct['postings'][1]['balance'], second_amt)
+	self.assertEqual(acct['postings'][2]['balance'], third_amt)
 
