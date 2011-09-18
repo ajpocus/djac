@@ -112,3 +112,44 @@ class AccountTestCase(TestCase):
 	self.assertEqual(acct['postings'][1]['balance'], second_amt)
 	self.assertEqual(acct['postings'][2]['balance'], third_amt)
 
+class PostingTestCase(TestCase):
+    fixtures = ['test_data.json',]
+
+    def setUp(self):
+	self.user = User.objects.get(username='foobar')
+        self.account = self.user.get_profile().accounts.create(name='Bank',
+            owner=self.user)
+	self.paycheck = Account.objects.create(name='Paycheck',
+	    owner=self.user)
+	self.phone_bill = Account.objects.create(name='Phone Bill',
+	    owner=self.user)
+	self.credit_amt = decimal.Decimal('354.32')
+	self.debit_amt = decimal.Decimal('75.64')
+
+    def tearDown(self):
+	self.account.delete()
+	self.paycheck.delete()
+	self.phone_bill.delete()
+
+    def test_posting_create(self):
+	self.account.add_credit(date.today(), self.paycheck, self.credit_amt)
+	self.account.add_debit(date.today(), self.phone_bill, self.debit_amt)
+
+	pay_credit = Posting.objects.get(account=self.account, amount__gt=0)
+	pay_debit = Posting.objects.get(account=self.paycheck, amount__lt=0)
+
+	self.assertEqual(pay_credit.amount, self.credit_amt)
+	self.assertEqual(pay_debit.amount, -self.credit_amt)
+
+	bill_credit = Posting.objects.get(account=self.phone_bill,
+	    amount__gt=0)
+	bill_debit = Posting.objects.get(account=self.account, amount__lt=0)
+
+	self.assertEqual(bill_credit.amount, self.debit_amt)
+	self.assertEqual(bill_debit.amount, -self.debit_amt)
+
+	self.assertEqual(self.account.balance,
+	    (self.credit_amt - self.debit_amt))
+	self.assertEqual(self.paycheck.balance, -self.credit_amt)
+	self.assertEqual(self.phone_bill.balance, self.debit_amt)
+
