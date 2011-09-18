@@ -6,8 +6,7 @@ from django.db import models
 from django.db import transaction
 from django.db.models import Sum, Manager
 from django.db.models.query import QuerySet
-from django.db.models.signals import pre_save, post_save
-from django.db.models.signals import pre_delete, post_delete
+from django.db.models.signals import post_save, pre_delete, post_delete
 
 
 class Journal(models.Model):
@@ -27,33 +26,12 @@ class Posting(models.Model):
     def __unicode__(self):
 	return "%s, %.2f, %s" % (self.date, self.amount, self.account.name)
 
-
-def posting_pre_save(sender, instance, **kwargs):
-    try:
-	instance.before_save = Posting.objects.get(id=instance.id)
-    except Posting.DoesNotExist:
-	instance.before_save = None
-
 def posting_post_save(sender, instance, created, **kwargs):
     if created:
 	account = instance.account
 	amount = decimal.Decimal(instance.amount)
 	account.balance += amount
 	account.save()
-    else:
-	before_save = instance.before_save
-	account = instance.account
-	if before_save.amount != instance.amount:
-	    old_amt = decimal.Decimal(before_save.amount)
-	    new_amt = decimal.Decimal(instance.amount)
-	    if old_amt < new_amt:
-		amount = new_amt - old_amt
-		account.balance += amount
-		account.save()
-	    else:
-		amount = old_amt - new_amt
-		account.balance -= amount
-		account.save()
 
 def posting_pre_delete(sender, instance, **kwargs):
     instance.account.balance -= instance.amount
@@ -65,7 +43,6 @@ def posting_post_delete(sender, instance, **kwargs):
     except Journal.DoesNotExist:
 	pass
 
-pre_save.connect(posting_pre_save, sender=Posting)
 post_save.connect(posting_post_save, sender=Posting)
 pre_delete.connect(posting_pre_delete, sender=Posting)
 post_delete.connect(posting_post_delete, sender=Posting)

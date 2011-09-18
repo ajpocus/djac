@@ -3,7 +3,7 @@ from datetime import date, timedelta
 
 from django.test import TestCase
 from django.contrib.auth.models import User
-from accounts.models import Account, Posting
+from accounts.models import Account, Posting, Journal
 
 class AccountTestCase(TestCase):
     fixtures = ['test_data.json',]
@@ -123,8 +123,11 @@ class PostingTestCase(TestCase):
 	    owner=self.user)
 	self.phone_bill = Account.objects.create(name='Phone Bill',
 	    owner=self.user)
+
 	self.credit_amt = decimal.Decimal('354.32')
 	self.debit_amt = decimal.Decimal('75.64')
+	self.account.add_credit(date.today(), self.paycheck, self.credit_amt)
+	self.account.add_debit(date.today(), self.phone_bill, self.debit_amt)
 
     def tearDown(self):
 	self.account.delete()
@@ -132,9 +135,6 @@ class PostingTestCase(TestCase):
 	self.phone_bill.delete()
 
     def test_posting_create(self):
-	self.account.add_credit(date.today(), self.paycheck, self.credit_amt)
-	self.account.add_debit(date.today(), self.phone_bill, self.debit_amt)
-
 	pay_credit = Posting.objects.get(account=self.account, amount__gt=0)
 	pay_debit = Posting.objects.get(account=self.paycheck, amount__lt=0)
 
@@ -152,4 +152,14 @@ class PostingTestCase(TestCase):
 	    (self.credit_amt - self.debit_amt))
 	self.assertEqual(self.paycheck.balance, -self.credit_amt)
 	self.assertEqual(self.phone_bill.balance, self.debit_amt)
+
+    def test_posting_delete(self):
+	Posting.objects.filter(account=self.account).delete()
+	self.assertFalse(Posting.objects.filter(account=self.account).exists())
+	self.assertFalse(Posting.objects.filter(
+	    account=self.paycheck).exists())
+	self.assertFalse(Posting.objects.filter(
+	    account=self.phone_bill).exists())
+	self.assertFalse(Journal.objects.filter(type="Income").exists())
+	self.assertFalse(Journal.objects.filter(type="Expense").exists())
 
