@@ -64,12 +64,12 @@ def budget_post_save(sender, instance, **kwargs):
 	    instance.save()
 
 	else:
-	    journal = instance.journal
-	    Posting.objects.filter(journal=journal).delete()
+	    instance.before_save.journal.delete()
 	    instance.journal = None
 	    instance.save()
 
 
 pre_save.connect(budget_pre_save, sender=Budget)
 post_save.connect(budget_post_save, sender=Budget)
+
 

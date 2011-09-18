@@ -163,3 +163,4 @@ class PostingTestCase(TestCase):
 	self.assertFalse(Journal.objects.filter(type="Income").exists())
 	self.assertFalse(Journal.objects.filter(type="Expense").exists())
 
+
