@@ -5,7 +5,8 @@ from django.test import TestCase
 from django.contrib.auth.models import User
 
 from budget.models import Budget
-from accounts.models import Account, Posting
+from accounts.models import Account, Posting, Journal
+
 
 class BudgetTestCase(TestCase):
     fixtures = ['test_data.json',]
@@ -47,4 +48,16 @@ class BudgetTestCase(TestCase):
 	self.assertEqual(credit.amount, self.check_amt)
 	self.assertEqual(debit.amount, -self.check_amt)
 
+    def test_applied_switch(self):
+	self.budget.is_applied = True
+	self.budget.save()
+	self.budget.is_applied = False
+	self.budget.save()
+
+	zero = decimal.Decimal('0.00')
+	self.assertEqual(Posting.objects.all().count(), 0)
+	self.assertEqual(Journal.objects.all().count(), 0)
+	self.assertIsNone(self.budget.journal)
+	self.assertEqual(self.account.balance, zero)
+	self.assertEqual(self.check.balance, zero)
 

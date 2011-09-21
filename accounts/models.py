@@ -26,6 +26,7 @@ class Posting(models.Model):
     def __unicode__(self):
 	return "%s, %.2f, %s" % (self.date, self.amount, self.account.name)
 
+
 def posting_post_save(sender, instance, created, **kwargs):
     if created:
 	account = instance.account
@@ -37,16 +38,19 @@ def posting_pre_delete(sender, instance, **kwargs):
     instance.account.balance -= instance.amount
     instance.account.save()
 
-def posting_post_delete(sender, instance, **kwargs):
-    try:
+    other = Posting.objects.filter(journal=instance.journal).exclude(
+	id=instance.id)
+    if other.exists():
+	pre_delete.disconnect(posting_pre_delete, sender=Posting)
+	other.delete()
+	pre_delete.connect(posting_pre_delete, sender=Posting)
+    if Posting.objects.filter(journal=instance.journal).count() == 1:
+	pre_delete.disconnect(posting_pre_delete, sender=Posting)
 	instance.journal.delete()
-    except Journal.DoesNotExist:
-	pass
+        pre_delete.connect(posting_pre_delete, sender=Posting)
 
 post_save.connect(posting_post_save, sender=Posting)
 pre_delete.connect(posting_pre_delete, sender=Posting)
-post_delete.connect(posting_post_delete, sender=Posting)
-
 
 # I used a custom QuerySet to allow filter chaining with get_running_balance,
 # rather than attaching the method to Account.objects through AccountManager.
