@@ -38,16 +38,15 @@ def posting_pre_delete(sender, instance, **kwargs):
     instance.account.balance -= instance.amount
     instance.account.save()
 
-    other = Posting.objects.filter(journal=instance.journal).exclude(
-	id=instance.id)
-    if other.exists():
-	pre_delete.disconnect(posting_pre_delete, sender=Posting)
-	other.delete()
-	pre_delete.connect(posting_pre_delete, sender=Posting)
-    if Posting.objects.filter(journal=instance.journal).count() == 1:
+    try:
+	other = Posting.objects.filter(journal=instance.journal).exclude(
+	    id=instance.id).get()
 	pre_delete.disconnect(posting_pre_delete, sender=Posting)
 	instance.journal.delete()
-        pre_delete.connect(posting_pre_delete, sender=Posting)
+	pre_delete.connect(posting_pre_delete, sender=Posting)
+	other.delete()
+    except Journal.DoesNotExist:
+	pass
 
 post_save.connect(posting_post_save, sender=Posting)
 pre_delete.connect(posting_pre_delete, sender=Posting)

@@ -46,15 +46,15 @@ class Budget(models.Model):
             credit_amt = self.amount.to_eng_string()
             debit_amt = '-' + credit_amt
 
+            self.journal = journal
             credit = Posting.objects.create(date=self.date,
-                journal=journal, amount=credit_amt, account=self.payee)
-            debit = Posting.objects.create(date=self.date, journal=journal,
+                journal=self.journal, amount=credit_amt, account=self.payee)
+            debit = Posting.objects.create(date=self.date, journal=self.journal,
                 amount=debit_amt, account=self.payer)
 
-            self.journal = journal
 
 	elif (not self.is_applied and self.journal is not None):
-	    self.journal.delete()
+	    Posting.objects.filter(journal=self.journal).delete()
 	    self.journal = None
 
 	super(Budget, self).save(*args, **kwargs)

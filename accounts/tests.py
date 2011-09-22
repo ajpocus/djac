@@ -163,4 +163,10 @@ class PostingTestCase(TestCase):
 	self.assertFalse(Journal.objects.filter(type="Income").exists())
 	self.assertFalse(Journal.objects.filter(type="Expense").exists())
 
+	zero = decimal.Decimal('0.00')
+	self.assertEqual(self.account.balance, zero)
+	self.assertEqual(self.paycheck.balance, zero)
+	self.assertEqual(self.phone_bill.balance, zero)
+
+
 
