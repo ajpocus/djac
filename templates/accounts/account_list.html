@@ -28,6 +28,11 @@
 
 	    {% for posting in account.postings %}
 	    <div class="posting">
+		<form method="post" action="/accounts/void/">{% csrf_token %}
+		    <input type="hidden" name="journal"
+			value="{{ posting.journal }}" />
+		    <input type="submit" value="Void" />
+		</form>
 		<span class="date">{{ posting.date }}</span>
 		<span class="name">{{ posting.name }}</span>
 		<span class="amount">{{ posting.amount|stringformat:".2f" }}

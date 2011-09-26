@@ -7,9 +7,9 @@ from django.db.models import Sum
 from django.contrib.auth.decorators import login_required
 from django.template import RequestContext
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 
-from accounts.forms import AccountAddForm, AccountTransferForm
+from accounts.forms import AccountAddForm, AccountTransferForm, VoidForm
 from accounts.models import Posting
 
 @login_required
@@ -122,4 +122,14 @@ def account_view(request, account_id):
     })
 
     return render(request, 'accounts/account_view.html', context_instance=c)
+
+@transaction.commit_on_success
+@login_required
+def account_void(request):
+    if request.method == 'POST':
+	form = VoidForm(request.POST)
+	if form.is_valid():
+	    form.process()
+	    
+    return redirect('/accounts/')
 

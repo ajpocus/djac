@@ -6,7 +6,7 @@ from django.db import models
 from django.db import transaction
 from django.db.models import Sum, Manager
 from django.db.models.query import QuerySet
-from django.db.models.signals import post_save, pre_delete, post_delete
+from django.db.models.signals import post_save
 
 
 class Journal(models.Model):
@@ -14,6 +14,10 @@ class Journal(models.Model):
 
     def __unicode__(self):
         return self.type
+
+
+class Void(Journal):
+    original = models.ForeignKey(Journal, related_name='+')
 
 
 class Posting(models.Model):
@@ -34,22 +38,7 @@ def posting_post_save(sender, instance, created, **kwargs):
 	account.balance += amount
 	account.save()
 
-def posting_pre_delete(sender, instance, **kwargs):
-    instance.account.balance -= instance.amount
-    instance.account.save()
-
-    try:
-	other = Posting.objects.filter(journal=instance.journal).exclude(
-	    id=instance.id).get()
-	pre_delete.disconnect(posting_pre_delete, sender=Posting)
-	instance.journal.delete()
-	pre_delete.connect(posting_pre_delete, sender=Posting)
-	other.delete()
-    except Journal.DoesNotExist:
-	pass
-
 post_save.connect(posting_post_save, sender=Posting)
-pre_delete.connect(posting_pre_delete, sender=Posting)
 
 # I used a custom QuerySet to allow filter chaining with get_running_balance,
 # rather than attaching the method to Account.objects through AccountManager.
@@ -58,7 +47,8 @@ class AccountQuerySet(QuerySet):
         accounts = []
 
         for account in self:
-            posting_list = Posting.objects.order_by('date').filter(
+            posting_list = Posting.objects.select_related().order_by(
+		'date').filter(
                 account=account).filter(
                 date__gte=start_date).filter(
                 date__lte=end_date)
@@ -68,7 +58,8 @@ class AccountQuerySet(QuerySet):
 	    bal_start = start_date - day
             running_balance = account.get_balance_on(bal_start)
             for posting in posting_list:
-                name = Posting.objects.order_by('date').filter(
+                name = Posting.objects.select_related().order_by(
+		    'date').filter(
 		    journal=posting.journal).exclude(
                     account=account)[0].account.name
                 running_balance += posting.amount
@@ -77,6 +68,7 @@ class AccountQuerySet(QuerySet):
                     'name': name,
                     'amount': posting.amount,
                     'balance': running_balance,
+		    'journal': posting.journal.id,
                 })
 
             accounts.append({

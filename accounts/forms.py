@@ -2,7 +2,7 @@ import datetime
 
 from django import forms
 from django.contrib.auth.models import User
-from accounts.models import Account
+from accounts.models import Account, Journal, Void, Posting
 
 class AccountAddForm(forms.ModelForm):
     name = forms.CharField(max_length=64, label='Account Name')
@@ -49,6 +49,7 @@ class AccountTransferForm(forms.Form):
 	payee = accounts.get_or_create(name=payee, owner=user)[0]
 	payer.add_transfer(data['date'], payee, amount)
 
+
 class TransactionForm(forms.Form):
     name = forms.CharField(max_length=64)
     amount = forms.DecimalField(max_digits=14, decimal_places=2)
@@ -78,3 +79,26 @@ class TransactionForm(forms.Form):
         amount = data['amount']
         date = data['date']
 
+
+class VoidForm(forms.Form):
+    journal = forms.IntegerField(initial='')
+
+    def process(self):
+	data = self.cleaned_data
+	journal_id = data['journal']
+	journal = Journal.objects.get(id=journal_id)
+
+	postings = Posting.objects.select_related().filter(journal=journal)
+        credit = postings.get(amount__gt=0)
+        debit = postings.get(amount__lt=0)
+
+        today = datetime.date.today()
+        amount = credit.amount
+        void = Void.objects.create(original=journal)
+        void_debit = Posting(date=today, account=credit.account,
+	    amount=-amount, journal=void)
+        void_credit = Posting(date=today, account=debit.account, amount=amount,
+	    journal=void)
+	void_debit.save()
+	void_credit.save()
+	

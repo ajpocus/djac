@@ -157,3 +157,11 @@ a.info {
     background-color: #E6EBF5;
 }
 
+.posting .void {
+    color: red;
+}
+
+.posting .journal {
+    display: none;
+}
+
